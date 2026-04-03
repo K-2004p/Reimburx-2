@@ -1,0 +1,7 @@
+{
+  "name": "Reimburx",
+  "description": "A professional enterprise SaaS for managing expense reimbursements with OCR, multi-level approvals, and multi-currency support.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

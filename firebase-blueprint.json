@@ -1,0 +1,107 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Represents a user in the system.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The unique identifier for the user." },
+        "email": { "type": "string", "description": "The user's email address." },
+        "name": { "type": "string", "description": "The user's full name." },
+        "role": { "type": "string", "enum": ["Admin", "Manager", "Employee"], "description": "The user's role." },
+        "companyId": { "type": "string", "description": "The ID of the company the user belongs to." },
+        "managerId": { "type": "string", "description": "The ID of the user's manager (for Employees)." },
+        "currency": { "type": "string", "description": "The user's preferred currency." }
+      },
+      "required": ["uid", "email", "role", "companyId"]
+    },
+    "Company": {
+      "title": "Company",
+      "description": "Represents a company in the system.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The unique identifier for the company." },
+        "name": { "type": "string", "description": "The name of the company." },
+        "baseCurrency": { "type": "string", "description": "The default currency for the company." },
+        "country": { "type": "string", "description": "The country where the company is located." },
+        "adminId": { "type": "string", "description": "The ID of the company's admin user." }
+      },
+      "required": ["id", "name", "baseCurrency", "country", "adminId"]
+    },
+    "Expense": {
+      "title": "Expense",
+      "description": "Represents an expense claim.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The unique identifier for the expense." },
+        "employeeId": { "type": "string", "description": "The ID of the employee who submitted the expense." },
+        "companyId": { "type": "string", "description": "The ID of the company." },
+        "amount": { "type": "number", "description": "The amount of the expense." },
+        "currency": { "type": "string", "description": "The currency of the expense." },
+        "category": { "type": "string", "description": "The category of the expense." },
+        "description": { "type": "string", "description": "A description of the expense." },
+        "date": { "type": "string", "description": "The date of the expense (ISO 8601)." },
+        "status": { "type": "string", "enum": ["Pending", "Approved", "Rejected"], "description": "The current status of the expense." },
+        "receiptUrl": { "type": "string", "description": "The URL of the receipt image." },
+        "ocrData": { "type": "object", "description": "Data extracted from the receipt via OCR." },
+        "currentApproverIndex": { "type": "number", "description": "The index of the current approver in the sequence." },
+        "approvals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "approverId": { "type": "string" },
+              "status": { "type": "string", "enum": ["Approved", "Rejected"] },
+              "comment": { "type": "string" },
+              "timestamp": { "type": "string" }
+            }
+          }
+        }
+      },
+      "required": ["id", "employeeId", "companyId", "amount", "currency", "status", "date"]
+    },
+    "ApprovalRule": {
+      "title": "ApprovalRule",
+      "description": "Defines the approval workflow for a company.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The unique identifier for the rule." },
+        "companyId": { "type": "string", "description": "The ID of the company." },
+        "sequence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string", "enum": ["Manager", "SpecificUser", "Role"] },
+              "value": { "type": "string", "description": "The user ID or role name." }
+            }
+          }
+        },
+        "percentageThreshold": { "type": "number", "description": "The percentage of approvers required for approval." },
+        "specificApproverId": { "type": "string", "description": "The ID of a specific user whose approval auto-approves the expense." }
+      },
+      "required": ["id", "companyId"]
+    },
+    "ApprovalLog": {
+      "title": "ApprovalLog",
+      "description": "Represents a log of an approval action.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The unique identifier for the log." },
+        "expenseId": { "type": "string", "description": "The ID of the expense." },
+        "approverId": { "type": "string", "description": "The ID of the user who performed the action." },
+        "status": { "type": "string", "enum": ["Approved", "Rejected"], "description": "The action performed." },
+        "comment": { "type": "string", "description": "A comment provided by the approver." },
+        "createdAt": { "type": "string", "description": "The timestamp of the action." }
+      },
+      "required": ["id", "expenseId", "approverId", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "users": { "schema": "User", "description": "A collection of users." },
+    "companies": { "schema": "Company", "description": "A collection of companies." },
+    "expenses": { "schema": "Expense", "description": "A collection of expense claims." },
+    "approvalRules": { "schema": "ApprovalRule", "description": "A collection of approval rules." },
+    "approvalLogs": { "schema": "ApprovalLog", "description": "A collection of approval logs." }
+  }
+}
